@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doomscrolling Detector</title>
+</head>
+
+<body>
+    <h1>Doomscrolling Detector</h1>
+    <button id="refresh-stats">Refresh Stats</button>
+    <div id="stats"></div>
+    <script>
+
+        function refreshStats() {
+            fetch("http://localhost:8000/api/stats").then(res => res.json()).then(stats => {
+                document.getElementById("stats").innerHTML = JSON.stringify(stats)
+            })
+        }
+        refreshStats()
+
+        document.getElementById("refresh-stats").addEventListener("click", () => {
+            refreshStats()
+        })
+    </script>
+</body>
+
+</html>
