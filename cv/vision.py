@@ -6,7 +6,7 @@ from draw_frame import draw_pose_frame
 pose_model = YOLO("yolo11n-pose.pt")
 detection_model = YOLO("yolo11n.pt")
 
-def get_phones(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, list[tuple[int, int, int, int]]]:
+def get_phones(frame: np.ndarray, *, draw: bool = True) -> tuple[np.ndarray, list[tuple[int, int, int, int]]]:
     detection_results = detection_model(frame, verbose=False)[0]
     boxes = detection_results.boxes
 
@@ -26,7 +26,7 @@ def get_phones(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, list[t
     
     return frame, phone_coords_normalized
 
-def get_pose(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, np.ndarray]:
+def get_pose(frame: np.ndarray, *, draw: bool = True) -> tuple[np.ndarray, np.ndarray]:
 
     # currently we only get one person
     results = pose_model(frame, verbose=False)[0]
@@ -49,8 +49,7 @@ def get_pose(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, np.ndarr
 
     return frame, kps_normalized
 
-def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, draw: bool = True) -> bool:
-    margin = 0.2
+def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, threshold: float = 0.2, *, draw: bool = True) -> bool:
     
     def midpoint(p1, p2):
         return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
@@ -61,12 +60,11 @@ def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, draw: bool = 
 
     vert_diff = abs(y_hips - y_shoulder)
 
-    is_reclining = vert_diff < margin
+    is_reclining = vert_diff < threshold
 
     return is_reclining
 
-def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, int]], kps_n: np.ndarray, draw: bool = True) -> bool:
-    radius = 0.5 # will need tweaking
+def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, int]], kps_n: np.ndarray, threshold: float = 0.5, *, draw: bool = True) -> bool:
 
     if len(phones_n) == 0:
         return False
@@ -82,12 +80,12 @@ def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, 
         dist_left = np.linalg.norm(phone_midpoint - kps_n[9])
         dist_right = np.linalg.norm(phone_midpoint - kps_n[10])
 
-        if dist_left < radius or dist_right < radius:
+        if dist_left < threshold or dist_right < threshold:
             return True
 
     return False
 
-def detect_doomscrolling(frame: np.ndarray, kps: np.ndarray, draw: bool = True):
+def detect_doomscrolling(frame: np.ndarray, kps: np.ndarray, *, draw: bool = True):
     frame, phones = get_phones(frame, draw)
     frame, kps = get_pose(frame, draw)
 
