@@ -118,6 +118,7 @@ async def api_stats():
 async def reset_stats():
     global doomscroll_stats
     doomscroll_stats = init_stats.copy()
+    doomscroll_stats["owed_usd"] = 0
 
     return {"ok": True}
 
