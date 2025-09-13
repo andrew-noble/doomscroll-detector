@@ -4,8 +4,10 @@ Doomscroll Detector is a computer vision pipeline that helps you reclaim your at
 
 ![Demo GIF](media/best_clip.gif)
 
-Anecdotally, I don't personally find myself scrolling away the hours while on my feet, or even seated in a chair. Its mostly when I am reclined. As such, the system flags when the person in frame had a phone in their hand AND is reclined. If they're sitting upright with their phone, it doesn't fire, and obviously if they're just
-reclined without a phone, it also doesn't fire.
+Anecdotally, I don't find myself scrolling away the hours while on my feet, or even seated in a chair. Its mostly when I am reclined. As such, the system flags when the person in frame had a phone in their hand AND is reclined. As you can see in the above GIF, the system doesn't flag when:
+
+- subject is sitting up using their phone, or
+- reclined without a phone
 
 The system is divided into 3 parts, a vision pipeline, a webserver, and a simple dashboard.
 
@@ -21,7 +23,8 @@ The system is divided into 3 parts, a vision pipeline, a webserver, and a simple
 
 - **Dashboard**
   - Static dashboard that displays scrolling stats, including consequences. The current consequence is charging a credit card $0.50/second via Stripe
-    ![Dashboard](/media/dashboard.png)
+
+![Dashboard](/media/dashboard.png)
 
 ## File Structure
 
