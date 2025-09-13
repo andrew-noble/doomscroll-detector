@@ -169,26 +169,35 @@
                 });
         }
 
-        // Initial load
-        refreshStats();
-        refreshCvDetectorAlive();
-
-        // Auto-refresh every 3 seconds
-        setInterval(refreshCvDetectorAlive, 3000);
-        setInterval(refreshStats, 3000); // Refresh stats every 5 seconds
-
-        // Manual refresh button
-        document.getElementById("refresh-stats").addEventListener("click", () => {
+        // Wait for DOM to be ready before attaching event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initial load
             refreshStats();
             refreshCvDetectorAlive();
-        });
 
-        document.getElementById("reset-stats").addEventListener("click", () => {
-            fetch("http://localhost:8000/api/reset_stats")
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Stats reset:", data);
-                });
+            // Auto-refresh every 3 seconds
+            setInterval(refreshCvDetectorAlive, 3000);
+            setInterval(refreshStats, 3000); // Refresh stats every 5 seconds
+
+            // Manual refresh button (commented out since the button is commented out in HTML)
+            // document.getElementById("refresh-stats").addEventListener("click", () => {
+            //     refreshStats();
+            //     refreshCvDetectorAlive();
+            // });
+
+            document.getElementById("reset-stats").addEventListener("click", () => {
+                console.log("Resetting stats");
+                fetch("http://localhost:8000/api/reset_stats", { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("Stats reset:", data);
+                        // Refresh stats after reset
+                        refreshStats();
+                    })
+                    .catch(error => {
+                        console.error("Error resetting stats:", error);
+                    });
+            });
         });
     </script>
 </body>
