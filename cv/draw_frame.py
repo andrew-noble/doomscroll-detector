@@ -66,16 +66,16 @@ def draw_pose_frame(frame: np.ndarray, kps: np.ndarray):
     if len(kps) >= 15:
         # Draw keypoint dots
         # Red dots on shoulders (keypoints 5, 6)
-        cv2.circle(frame, pt(5), 12, (0, 0, 255), -1)  # Left shoulder - red
-        cv2.circle(frame, pt(6), 12, (0, 0, 255), -1)  # Right shoulder - red
+        cv2.circle(frame, pt(5), 30, (0, 0, 255), -1)  # Left shoulder - red
+        cv2.circle(frame, pt(6), 30, (0, 0, 255), -1)  # Right shoulder - red
         
         # Orange dots on hips (keypoints 11, 12)
-        cv2.circle(frame, pt(11), 12, (0, 165, 255), -1)  # Left hip - orange
-        cv2.circle(frame, pt(12), 12, (0, 165, 255), -1)  # Right hip - orange
+        cv2.circle(frame, pt(11), 30, (0, 165, 255), -1)  # Left hip - orange
+        cv2.circle(frame, pt(12), 30, (0, 165, 255), -1)  # Right hip - orange
         
         # Green dots on wrists (keypoints 9, 10)
-        cv2.circle(frame, pt(9), 12, (0, 255, 0), -1)   # Left wrist - green
-        cv2.circle(frame, pt(10), 12, (0, 255, 0), -1)  # Right wrist - green
+        cv2.circle(frame, pt(9), 30, (0, 255, 0), -1)   # Left wrist - green
+        cv2.circle(frame, pt(10), 30, (0, 255, 0), -1)  # Right wrist - green
         
         # OLD CODE - skeleton connections (commented out)
         # # torso: shoulders → hips
@@ -111,8 +111,7 @@ def draw_status_overlay(frame: np.ndarray, status: bool, label: str = "Status", 
     height, width = frame.shape[:2]
     
     # Set colors - Green for False, Red for True (inverted logic)
-    color = (0, 255, 0) if not status else (0, 0, 255)  # Green for False, Red for True
-    text_color = (255, 255, 255)  # White text
+    text_color = (0, 255, 0) if not status else (0, 0, 255)  # Green for False, Red for True
     
     # Create status text
     status_text = f"{label}: {'TRUE' if status else 'FALSE'}"
@@ -150,14 +149,7 @@ def draw_status_overlay(frame: np.ndarray, status: bool, label: str = "Status", 
                   (x - padding//2, y - text_height - padding//2), 
                   (x + text_width + padding//2, y + baseline + padding//2), 
                   (0, 0, 0), -1)  # Black background
-    
-    # Draw status indicator circle - much bigger
-    circle_radius = 20  # Much bigger circle
-    circle_x = x - circle_radius - 10
-    circle_y = y - text_height//2
-    
-    cv2.circle(frame, (circle_x, circle_y), circle_radius, color, -1)
-    
+        
     # Draw text
     cv2.putText(frame, status_text, (x, y), font, font_scale, text_color, thickness)
     

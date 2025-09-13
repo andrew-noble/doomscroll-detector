@@ -95,8 +95,8 @@ def main():
         is_buffered = update(t, is_doomscrolling)
 
         # draw overlays
-        frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left")
-        frame = draw_status_overlay(frame, is_buffered, "Doomscrolling (buffered)", "bottom_left")
+        # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left")
+        frame = draw_status_overlay(frame, is_buffered, "Doomscrolling", "bottom_left")
 
         # periodic POST every ~5s
         if t - last_post >= 1.0:

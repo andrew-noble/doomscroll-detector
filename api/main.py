@@ -85,7 +85,7 @@ async def detection(request: Request):
             doomscroll_stats["doomscroll_clean_streak_secs"] = time.time() - server_start_time
 
     doomscroll_stats["owed_usd"] = (
-        doomscroll_stats["doom_secs_today"] * doomscroll_stats["penalty_rate"]
+        doomscroll_stats["doom_secs_today"] * doomscroll_stats["penalty_rate_per_second"]
     )
 
     return {"ok": True}

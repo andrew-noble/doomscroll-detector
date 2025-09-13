@@ -1,4 +1,4 @@
-# doomscroll-detector
+# Doomscrolling Detector
 
 Doomscroll Detector is a computer vision pipeline that helps you reclaim your attention. It recognizes when you’re stuck in endless scrolling, and provides actionable feedback — from gentle reminders to self-imposed penalties. A simple way to break the cycle and build a healthier relationship with your phone.
 
