@@ -63,12 +63,12 @@
             </div>
 
             <!-- Penalty Rate Card -->
-            <div class="metric-card">
+            <div id="penalty" class="metric-card">
                 <div class="card-header">
                     <h3>Penalty</h3>
                 </div>
                 <div class="card-content">
-                    <div class="metric-value" id="penalty">$0.00</div>
+                    <div class="metric-value" id="penalty-value">$0.00</div>
                 </div>
             </div>
 
@@ -130,7 +130,11 @@
                     // Update metrics
                     document.getElementById("doom-secs-today").textContent = formatTime(stats.doom_secs_today);
                     document.getElementById("clean-streak").textContent = formatTime(stats.doomscroll_clean_streak_secs);
-                    document.getElementById("penalty").textContent = `$${stats.owed_usd.toFixed(2)}`;
+                    document.getElementById("penalty-value").textContent = `$${stats.owed_usd.toFixed(2)}`;
+
+                    // Update penalty box styling based on doomscrolling status
+                    const penaltyElement = document.getElementById("penalty");
+                    penaltyElement.className = `penalty ${isDoomscrolling ? "doomscrolling" : "clean"}`;
                 })
                 .catch(error => {
                     console.error("Error fetching stats:", error);

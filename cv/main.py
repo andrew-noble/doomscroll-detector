@@ -8,7 +8,7 @@ from collections import deque
 import time
 import requests
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 # Set higher resolution
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)   # Width
@@ -98,7 +98,7 @@ def main():
         # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left")
         # phone boxes are drawn in the get_phones func, very awkward, but okay since last CV step
         frame = draw_pose_frame(frame, kps)
-        frame = draw_status_overlay(frame, is_buffered, "Doomscrolling", "bottom_left")
+        frame = draw_status_overlay(frame, is_buffered, "Doomscrolling", "top_left")
 
         # periodic POST every ~5s
         if t - last_post >= 1.0:

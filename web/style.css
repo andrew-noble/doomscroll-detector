@@ -120,6 +120,26 @@ body {
   color: #4a5568;
 }
 
+.penalty.doomscrolling {
+  background-color: rgba(201, 92, 92, 0.67);
+  border: 2px solid #ef4444;
+  color: #dc2626;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+.penalty.clean {
+  background-color: rgb(168, 247, 188);
+  border: 2px solid rgba(85, 205, 129, 0.72);
+  color: rgb(66, 173, 105);
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+}
+
 /* Status Indicators */
 .status-indicator {
   width: 12px;
