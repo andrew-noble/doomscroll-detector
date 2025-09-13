@@ -69,9 +69,9 @@ def draw_pose_frame(frame: np.ndarray, kps: np.ndarray):
         cv2.circle(frame, pt(5), 12, (0, 0, 255), -1)  # Left shoulder - red
         cv2.circle(frame, pt(6), 12, (0, 0, 255), -1)  # Right shoulder - red
         
-        # Blue dots on hips (keypoints 11, 12)
-        cv2.circle(frame, pt(11), 12, (255, 0, 0), -1)  # Left hip - blue
-        cv2.circle(frame, pt(12), 12, (255, 0, 0), -1)  # Right hip - blue
+        # Orange dots on hips (keypoints 11, 12)
+        cv2.circle(frame, pt(11), 12, (0, 165, 255), -1)  # Left hip - orange
+        cv2.circle(frame, pt(12), 12, (0, 165, 255), -1)  # Right hip - orange
         
         # Green dots on wrists (keypoints 9, 10)
         cv2.circle(frame, pt(9), 12, (0, 255, 0), -1)   # Left wrist - green
@@ -91,4 +91,74 @@ def draw_pose_frame(frame: np.ndarray, kps: np.ndarray):
         # Not enough keypoints detected, skip drawing
         pass
 
+    return frame
+
+
+def draw_status_overlay(frame: np.ndarray, status: bool, label: str = "Status", position: str = "top_left"):
+    """
+    Draw a simple boolean status indicator in the corner of the frame.
+    
+    Args:
+        frame (np.ndarray): The input frame to draw on
+        status (bool): The boolean status to display
+        label (str): Label text to show next to the indicator
+        position (str): Position of the overlay ("top_left", "top_right", "bottom_left", "bottom_right")
+    
+    Returns:
+        np.ndarray: The frame with status overlay drawn
+    """
+    # Get frame dimensions
+    height, width = frame.shape[:2]
+    
+    # Set colors - Green for False, Red for True (inverted logic)
+    color = (0, 255, 0) if not status else (0, 0, 255)  # Green for False, Red for True
+    text_color = (255, 255, 255)  # White text
+    
+    # Create status text
+    status_text = f"{label}: {'TRUE' if status else 'FALSE'}"
+    
+    # Set font properties - much bigger
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 2.0  # Much bigger text
+    thickness = 4  # Thicker text
+    
+    # Get text size
+    (text_width, text_height), baseline = cv2.getTextSize(status_text, font, font_scale, thickness)
+    
+    # Set padding - much bigger
+    padding = 20
+    
+    # Calculate position based on corner
+    if position == "top_left":
+        x = padding
+        y = text_height + padding
+    elif position == "top_right":
+        x = width - text_width - padding
+        y = text_height + padding
+    elif position == "bottom_left":
+        x = padding
+        y = height - padding
+    elif position == "bottom_right":
+        x = width - text_width - padding
+        y = height - padding
+    else:
+        x = padding
+        y = text_height + padding
+    
+    # Draw background rectangle
+    cv2.rectangle(frame, 
+                  (x - padding//2, y - text_height - padding//2), 
+                  (x + text_width + padding//2, y + baseline + padding//2), 
+                  (0, 0, 0), -1)  # Black background
+    
+    # Draw status indicator circle - much bigger
+    circle_radius = 20  # Much bigger circle
+    circle_x = x - circle_radius - 10
+    circle_y = y - text_height//2
+    
+    cv2.circle(frame, (circle_x, circle_y), circle_radius, color, -1)
+    
+    # Draw text
+    cv2.putText(frame, status_text, (x, y), font, font_scale, text_color, thickness)
+    
     return frame
