@@ -2,7 +2,7 @@
 
 My submission for HackCMU 2025. I built this project over 24 hours on September 12-13, 2025. Super fun!
 
-Doomscroll Detector is a computer vision pipeline that helps you reclaim your attention. It recognizes when you’re stuck in endless scrolling, and provides actionable feedback — from gentle reminders to self-imposed monetary penalties. A simple way to break the cycle and build a healthier relationship with your phone.
+Doomscroll Detector is a computer vision pipeline that helps you reclaim your attention. It recognizes when you’re stuck in endless scrolling, and starts charging your credit card.
 
 ![Demo GIF](media/best_clip.gif)
 
@@ -59,7 +59,7 @@ python main.py
   - Simple FastAPI server that reads outputs from the pipeline, determines the proper consequences for scrolling behavior, and serves data to be displayed to the dashboard
 
 - **Dashboard**
-  - Static dashboard that displays scrolling stats, including consequences. The current consequence is charging a credit card $0.50/second via Stripe
+  - Static dashboard that displays scrolling stats, including charging a credit card $0.50/doomscroll second via Stripe.
 
 ![Dashboard](/media/dashboard.png)
 
