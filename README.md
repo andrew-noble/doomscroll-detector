@@ -1,10 +1,12 @@
 # Doomscrolling Detector
 
+My submission for HackCMU 2025. I built this project over 24 hours on September 12-13, 2025. Super fun!
+
 Doomscroll Detector is a computer vision pipeline that helps you reclaim your attention. It recognizes when you’re stuck in endless scrolling, and provides actionable feedback — from gentle reminders to self-imposed penalties. A simple way to break the cycle and build a healthier relationship with your phone.
 
 ![Demo GIF](media/best_clip.gif)
 
-Anecdotally, I don't find myself scrolling away the hours while on my feet, or even seated in a chair. Its mostly when I am reclined. As such, the system flags when the person in frame had a phone in their hand AND is reclined. As you can see in the above GIF, the system doesn't flag when:
+Anecdotally, I don't find myself scrolling away the hours while on my feet, or even seated in a chair. Its mostly when I am reclined. As such, **the system flags when the person in frame had a phone in their hand AND is reclined**. As you can see in the above GIF, the system doesn't flag when:
 
 - subject is sitting up using their phone, or
 - reclined without a phone
