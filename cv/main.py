@@ -49,9 +49,11 @@ def main():
 
         frame, kps_normalized = get_pose(frame)
         frame, phones_normalized = get_phones(frame)
-        # is_reclining = detect_reclined(frame, kps_normalized)
+        is_reclining = detect_reclined(frame, kps_normalized)
         is_holding_phone = detect_holding_phone(frame, phones_normalized, kps_normalized)
-        print(is_holding_phone)
+        # print("recline: ", is_reclining, "holding phone: ", is_holding_phone)
+        print(is_reclining)
+        # print("doomscrolling: ", is_reclining and is_holding_phone)
 
         # Resize frame for larger display (optional)
         display_frame = cv2.resize(frame, (1280, 720))  # Make display larger

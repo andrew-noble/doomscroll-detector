@@ -50,7 +50,7 @@ def get_pose(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, np.ndarr
     return frame, kps_normalized
 
 def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, draw: bool = True) -> bool:
-    margin = 0.05
+    margin = 0.2
     
     def midpoint(p1, p2):
         return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
@@ -68,6 +68,9 @@ def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, draw: bool = 
 def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, int]], kps_n: np.ndarray, draw: bool = True) -> bool:
     radius = 0.5 # will need tweaking
 
+    if len(phones_n) == 0:
+        return False
+
     def box_center_xyxy(box):
         x1, y1, x2, y2 = map(float, box)  # handles np.float32 scalars too
         return ((x1 + x2) / 2.0, (y1 + y2) / 2.0)
@@ -78,8 +81,6 @@ def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, 
 
         dist_left = np.linalg.norm(phone_midpoint - kps_n[9])
         dist_right = np.linalg.norm(phone_midpoint - kps_n[10])
-
-        print(dist_left, dist_right)
 
         if dist_left < radius or dist_right < radius:
             return True
