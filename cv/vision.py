@@ -6,7 +6,7 @@ from draw_frame import draw_pose_frame
 pose_model = YOLO("yolo11n-pose.pt")
 detection_model = YOLO("yolo11n.pt")
 
-def get_phones(frame: np.ndarray, *, draw: bool = True) -> tuple[np.ndarray, list[tuple[int, int, int, int]]]:
+def get_phones(frame: np.ndarray) -> tuple[np.ndarray, list[tuple[int, int, int, int]]]:
     detection_results = detection_model(frame, verbose=False)[0]
     boxes = detection_results.boxes
 
@@ -19,14 +19,14 @@ def get_phones(frame: np.ndarray, *, draw: bool = True) -> tuple[np.ndarray, lis
         x1, y1, x2, y2 = box.xyxy.cpu().numpy()[0]
         phone_coords_normalized.append((x1_n, y1_n, x2_n, y2_n))
 
-        if draw:
-            name = "cell phone"
-            confidence = float(box.conf[0])
-            frame = draw_object_detection_frame(frame, name, confidence, x1, y1, x2, y2)
+        # awkward that we draw phones here, but draw pose out in main func, but okay for now
+        name = "cell phone"
+        confidence = float(box.conf[0])
+        frame = draw_object_detection_frame(frame, name, confidence, x1, y1, x2, y2)
     
     return frame, phone_coords_normalized
 
-def get_pose(frame: np.ndarray, *, draw: bool = True) -> tuple[np.ndarray, np.ndarray]:
+def get_pose(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     # currently we only get one person
     results = pose_model(frame, verbose=False)[0]
@@ -38,18 +38,16 @@ def get_pose(frame: np.ndarray, *, draw: bool = True) -> tuple[np.ndarray, np.nd
         
         # Debug: print keypoint info
         # print(f"Keypoints shape: {kps.shape}, Non-zero keypoints: {np.sum(kps > 0)}")
-        
-        if draw:
-            frame = draw_pose_frame(frame, kps)
+
     else:
         # No person detected
         print("No person detected")
         kps_normalized = np.zeros((17, 2))
         kps = np.zeros((17, 2))
 
-    return frame, kps_normalized
+    return frame, kps_normalized, kps
 
-def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, threshold: float, *, draw: bool = True) -> bool:
+def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, threshold: float) -> bool:
     
     def midpoint(p1, p2):
         return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)

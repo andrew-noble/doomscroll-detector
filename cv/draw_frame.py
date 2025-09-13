@@ -66,16 +66,16 @@ def draw_pose_frame(frame: np.ndarray, kps: np.ndarray):
     if len(kps) >= 15:
         # Draw keypoint dots
         # Red dots on shoulders (keypoints 5, 6)
-        cv2.circle(frame, pt(5), 30, (0, 0, 255), -1)  # Left shoulder - red
-        cv2.circle(frame, pt(6), 30, (0, 0, 255), -1)  # Right shoulder - red
+        frame = cv2.circle(frame, pt(5), 30, (0, 0, 255), -1)  # Left shoulder - red
+        frame = cv2.circle(frame, pt(6), 30, (0, 0, 255), -1)  # Right shoulder - red
         
         # Orange dots on hips (keypoints 11, 12)
-        cv2.circle(frame, pt(11), 30, (0, 165, 255), -1)  # Left hip - orange
-        cv2.circle(frame, pt(12), 30, (0, 165, 255), -1)  # Right hip - orange
+        frame = cv2.circle(frame, pt(11), 30, (0, 165, 255), -1)  # Left hip - orange
+        frame = cv2.circle(frame, pt(12), 30, (0, 165, 255), -1)  # Right hip - orange
         
         # Green dots on wrists (keypoints 9, 10)
-        cv2.circle(frame, pt(9), 30, (0, 255, 0), -1)   # Left wrist - green
-        cv2.circle(frame, pt(10), 30, (0, 255, 0), -1)  # Right wrist - green
+        frame = cv2.circle(frame, pt(9), 30, (0, 255, 0), -1)   # Left wrist - green
+        frame = cv2.circle(frame, pt(10), 30, (0, 255, 0), -1)  # Right wrist - green
         
         # OLD CODE - skeleton connections (commented out)
         # # torso: shoulders → hips

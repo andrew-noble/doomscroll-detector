@@ -13,7 +13,8 @@
     <div class="container">
         <header class="header">
             <h1>Doomscrolling Detector Dashboard</h1>
-            <button id="refresh-stats" class="refresh-btn">Refresh Stats</button>
+            <!-- <button id="refresh-stats" class="refresh-btn">Refresh Stats</button> -->
+            <button id="reset-stats" class="reset-btn">Reset Stats</button>
         </header>
 
         <div class="status-grid">
@@ -64,23 +65,13 @@
             <!-- Penalty Rate Card -->
             <div class="metric-card">
                 <div class="card-header">
-                    <h3>Penalty Rate</h3>
+                    <h3>Penalty</h3>
                 </div>
                 <div class="card-content">
-                    <div class="metric-value" id="penalty-rate">$0.00</div>
-                    <div class="metric-unit">per second</div>
+                    <div class="metric-value" id="penalty">$0.00</div>
                 </div>
             </div>
 
-            <!-- Last Doomscrolled Card -->
-            <div class="info-card">
-                <div class="card-header">
-                    <h3>Last Doomscrolled</h3>
-                </div>
-                <div class="card-content">
-                    <div class="info-text" id="last-doomscrolled">Never</div>
-                </div>
-            </div>
         </div>
 
         <!-- Debug Section (can be hidden) -->
@@ -139,8 +130,7 @@
                     // Update metrics
                     document.getElementById("doom-secs-today").textContent = formatTime(stats.doom_secs_today);
                     document.getElementById("clean-streak").textContent = formatTime(stats.doomscroll_clean_streak_secs);
-                    document.getElementById("penalty-rate").textContent = `$${stats.penalty_rate.toFixed(2)}`;
-                    document.getElementById("last-doomscrolled").textContent = formatDateTime(stats.last_doomscrolled_at);
+                    document.getElementById("penalty").textContent = `$${stats.owed_usd.toFixed(2)}`;
                 })
                 .catch(error => {
                     console.error("Error fetching stats:", error);
@@ -191,6 +181,14 @@
         document.getElementById("refresh-stats").addEventListener("click", () => {
             refreshStats();
             refreshCvDetectorAlive();
+        });
+
+        document.getElementById("reset-stats").addEventListener("click", () => {
+            fetch("http://localhost:8000/api/reset_stats")
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Stats reset:", data);
+                });
         });
     </script>
 </body>

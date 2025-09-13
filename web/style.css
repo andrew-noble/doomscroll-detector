@@ -64,6 +64,20 @@ body {
   transform: translateY(0);
 }
 
+.reset-btn {
+  background: linear-gradient(135deg, lightcoral, darkred);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  margin-left: 10px;
+}
+
 /* Grid Layout */
 .status-grid {
   display: grid;

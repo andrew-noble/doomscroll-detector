@@ -1,7 +1,7 @@
 import cv2
 import signal
 import sys
-from draw_frame import draw_status_overlay
+from draw_frame import draw_status_overlay, draw_pose_frame
 from vision import detect_doomscrolling, detect_holding_phone, detect_reclined, get_pose, get_phones
 from opts import get_opts
 from collections import deque
@@ -83,8 +83,8 @@ def main():
             break
 
         # run models
-        frame, kps_normalized = get_pose(frame, draw=not opts.headless)
-        frame, phones_normalized = get_phones(frame, draw=not opts.headless)
+        frame, kps_normalized, kps = get_pose(frame)
+        frame, phones_normalized = get_phones(frame) #phones boxes drawn in here, would need fixing.
 
         # heuristics
         is_reclining = detect_reclined(frame, kps_normalized, threshold=opts.reclined_threshold)
@@ -96,6 +96,8 @@ def main():
 
         # draw overlays
         # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left")
+        # phone boxes are drawn in the get_phones func, very awkward, but okay since last CV step
+        frame = draw_pose_frame(frame, kps)
         frame = draw_status_overlay(frame, is_buffered, "Doomscrolling", "bottom_left")
 
         # periodic POST every ~5s

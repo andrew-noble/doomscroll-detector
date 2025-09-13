@@ -67,12 +67,18 @@ async def detection(request: Request):
         logger.info("Doomscrolling detected!")
 
         if doomscroll_stats["last_doomscrolled_at"] is None:
-            doomscroll_stats["last_doomscrolled_at"] = time.time()
-
-        new_doomscroll_secs = data["timestamp"] - doomscroll_stats["last_doomscrolled_at"]
-        doomscroll_stats["doom_secs_today"] += new_doomscroll_secs
-        print(f"doomscroll_secs_today: {doomscroll_stats['doom_secs_today']}, new_doomscroll_secs: {new_doomscroll_secs}")
+            # First time doomscrolling - just set the timestamp
+            doomscroll_stats["last_doomscrolled_at"] = data["timestamp"]
+        else:
+            # Calculate time since last detection and add to total
+            new_doomscroll_secs = data["timestamp"] - doomscroll_stats["last_doomscrolled_at"]
+            doomscroll_stats["doom_secs_today"] += new_doomscroll_secs
+        
+        # Always update the last detection time
+        doomscroll_stats["last_doomscrolled_at"] = data["timestamp"]
         doomscroll_stats["doomscroll_clean_streak_secs"] = 0
+
+        print("timestamp: ", data["timestamp"])
 
     elif data["doomscrolling"] == False:
         doomscroll_stats["is_doomscrolling"] = False
@@ -88,6 +94,8 @@ async def detection(request: Request):
         doomscroll_stats["doom_secs_today"] * doomscroll_stats["penalty_rate_per_second"]
     )
 
+    print(f"doom_secs_today: {doomscroll_stats['doom_secs_today']}, owed_usd: {doomscroll_stats['owed_usd']}")
+
     return {"ok": True}
 
 @api.get("/cv_detector_alive")
@@ -98,6 +106,7 @@ async def cv_detector_alive():
     if cv_detector_heartbeat and time.time() - cv_detector_last_seen > 10:
         cv_detector_heartbeat = False
         print("CV Detector heartbeat timeout - setting to offline")
+        reset_stats()
     
     return {"cv_detector_alive": cv_detector_heartbeat}
 
@@ -105,7 +114,7 @@ async def cv_detector_alive():
 async def api_stats():
     return doomscroll_stats
 
-@api.post("reset_stats")
+@api.post("/reset_stats")
 async def reset_stats():
     global doomscroll_stats
     doomscroll_stats = init_stats.copy()
