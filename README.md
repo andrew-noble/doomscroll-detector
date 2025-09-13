@@ -19,7 +19,7 @@ I built and ran this project on ordinary, everyday hardware, my Framework 13 lap
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/andrew-noble/doomscroll-detector
 cd doomscroll-detector
 
 # Set up the computer vision pipeline
