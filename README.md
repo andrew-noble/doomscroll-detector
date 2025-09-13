@@ -2,6 +2,16 @@
 
 Doomscroll Detector is a computer vision pipeline that helps you reclaim your attention. It recognizes when you’re stuck in endless scrolling, and provides actionable feedback — from gentle reminders to self-imposed penalties. A simple way to break the cycle and build a healthier relationship with your phone.
 
+The basic theory is that most long, undesirable sessions scrolling social media happen when someone is using their phone while also reclined. It's anecdotal,
+but I don't personally find myself scrolling away the hours while on my feet, or even seated in a chair, its mostly when I am reclined. As such, the system flags when the person in frame had a phone in their hand AND is reclined. If they're sitting upright with their phone, it doesn't fire, and obviously if they're just
+reclined without a phone, it also doesn't fire. Here is a short clip illustrating this:
+
+![Demo GIF](media/best_clip.gif)
+
+This computer vision data is then sent to a webserver that calculates statistics about your doomscrolling habits, and also levies penalties. A simple web dashboard displays these stats:
+
+![Dashboard](/media/dashboard.png)
+
 The system is divided into 3 parts, a vision pipeline, a webserver, and a simple dashboard.
 
 ## Components
