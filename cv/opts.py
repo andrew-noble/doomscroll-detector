@@ -4,7 +4,7 @@ def get_opts():
     parser = argparse.ArgumentParser(description='Doomscrolling Detection')
 
     ## Paths
-    parser.add_argument('--record_video', type=bool, default=False,
+    parser.add_argument('--record_video', action='store_true',
                         help='record video')
     parser.add_argument('--headless', action='store_true',
                         help='run in headless mode, no display')
