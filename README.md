@@ -2,7 +2,7 @@
 
 My submission for HackCMU 2025. I built this project over 24 hours on September 12-13, 2025. Super fun!
 
-Doomscroll Detector is a computer vision pipeline that helps you reclaim your attention. It recognizes when you’re stuck in endless scrolling, and provides actionable feedback — from gentle reminders to self-imposed penalties. A simple way to break the cycle and build a healthier relationship with your phone.
+Doomscroll Detector is a computer vision pipeline that helps you reclaim your attention. It recognizes when you’re stuck in endless scrolling, and provides actionable feedback — from gentle reminders to self-imposed monetary penalties. A simple way to break the cycle and build a healthier relationship with your phone.
 
 ![Demo GIF](media/best_clip.gif)
 
