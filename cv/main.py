@@ -8,7 +8,7 @@ from collections import deque
 import time
 import requests
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 
 # Set higher resolution
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)   # Width
@@ -47,7 +47,7 @@ def main():
     opts = get_opts()
 
     WINDOW_SEC = 5.0
-    ENTER, EXIT = 0.60, 0.40
+    ENTER, EXIT = 0.60, 0.30 # to enter doomscroll state, pos > 60%, exit: pos < 30%
     buf = deque()
     pos_count = 0
     state = False           # buffered on/off
@@ -99,7 +99,7 @@ def main():
         frame = draw_status_overlay(frame, is_buffered, "Doomscrolling (buffered)", "bottom_left")
 
         # periodic POST every ~5s
-        if t - last_post >= 5.0:
+        if t - last_post >= 1.0:
             try:
                 requests.post(
                     "http://localhost:8000/api/data",
@@ -114,7 +114,8 @@ def main():
             out.write(frame)
 
         display_frame = cv2.resize(frame, (1280, 720))
-        cv2.imshow("Webcam", display_frame)
+        if not opts.headless:
+            cv2.imshow("Webcam", display_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("Exiting...")

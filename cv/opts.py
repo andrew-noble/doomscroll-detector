@@ -6,9 +6,9 @@ def get_opts():
     ## Paths
     parser.add_argument('--record_video', type=bool, default=False,
                         help='record video')
-    parser.add_argument('--headless', type=bool, default=False,
+    parser.add_argument('--headless', action='store_true',
                         help='run in headless mode, no display')
-    parser.add_argument('--reclined_threshold', type=float, default=0.2,
+    parser.add_argument('--reclined_threshold', type=float, default=0.3,
                         help='threshold for reclined detection')
     parser.add_argument('--holding_phone_threshold', type=float, default=0.5,
                         help='threshold for holding phone detection')

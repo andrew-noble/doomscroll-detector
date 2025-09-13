@@ -49,7 +49,7 @@ def get_pose(frame: np.ndarray, *, draw: bool = True) -> tuple[np.ndarray, np.nd
 
     return frame, kps_normalized
 
-def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, threshold: float = 0.2, *, draw: bool = True) -> bool:
+def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, threshold: float, *, draw: bool = True) -> bool:
     
     def midpoint(p1, p2):
         return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
@@ -64,7 +64,7 @@ def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, threshold: fl
 
     return is_reclining
 
-def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, int]], kps_n: np.ndarray, threshold: float = 0.5, *, draw: bool = True) -> bool:
+def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, int]], kps_n: np.ndarray, threshold: float, *, draw: bool = True) -> bool:
 
     if len(phones_n) == 0:
         return False

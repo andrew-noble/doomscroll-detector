@@ -4,45 +4,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doomscrolling Detector</title>
+    <title>Doomscrolling Detector Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <h1>Doomscrolling Detector</h1>
-    <button id="refresh-stats">Refresh Stats</button>
-    <div id="stats"></div>
-    <p id="cv-detector-alive-status">CV Pipeline Status: <span id="cv-detector-alive-status-value">Offline</span></p>
+    <div class="container">
+        <header class="header">
+            <h1>Doomscrolling Detector Dashboard</h1>
+            <button id="refresh-stats" class="refresh-btn">Refresh Stats</button>
+        </header>
+
+        <div class="status-grid">
+            <!-- CV Pipeline Status Card -->
+            <div class="status-card">
+                <div class="card-header">
+                    <h3>CV Pipeline Status</h3>
+                    <div class="status-indicator" id="cv-status-indicator"></div>
+                </div>
+                <div class="card-content">
+                    <span id="cv-detector-alive-status-value" class="status-text">Offline</span>
+                </div>
+            </div>
+
+            <!-- Current Status Card -->
+            <div class="status-card">
+                <div class="card-header">
+                    <h3>Current Status</h3>
+                    <div class="status-indicator" id="doom-status-indicator"></div>
+                </div>
+                <div class="card-content">
+                    <span id="is-doomscrolling" class="status-text">Unknown</span>
+                </div>
+            </div>
+
+            <!-- Today's Doomscrolling Card -->
+            <div class="metric-card">
+                <div class="card-header">
+                    <h3>Today's Doomscrolling</h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric-value" id="doom-secs-today">0</div>
+                    <div class="metric-unit">seconds</div>
+                </div>
+            </div>
+
+            <!-- Clean Streak Card -->
+            <div class="metric-card">
+                <div class="card-header">
+                    <h3>Clean Streak</h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric-value" id="clean-streak">0s</div>
+                    <div class="metric-unit">seconds</div>
+                </div>
+            </div>
+
+            <!-- Penalty Rate Card -->
+            <div class="metric-card">
+                <div class="card-header">
+                    <h3>Penalty Rate</h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric-value" id="penalty-rate">$0.00</div>
+                    <div class="metric-unit">per second</div>
+                </div>
+            </div>
+
+            <!-- Last Doomscrolled Card -->
+            <div class="info-card">
+                <div class="card-header">
+                    <h3>Last Doomscrolled</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-text" id="last-doomscrolled">Never</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Section (can be hidden) -->
+        <details class="debug-section">
+            <summary>Debug Info</summary>
+            <pre id="raw-stats"></pre>
+        </details>
+    </div>
+
     <script>
+        function formatTime(seconds) {
+            if (seconds === null || seconds === 0) return "0s";
+
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${secs}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            } else {
+                return `${secs}s`;
+            }
+        }
+
+        function formatDateTime(timestamp) {
+            if (!timestamp) return "Never";
+            return new Date(timestamp).toLocaleString();
+        }
+
+        // Global variable to store combined debug data
+        let debugData = {};
+
+        function updateDebugDisplay() {
+            document.getElementById("raw-stats").textContent = JSON.stringify(debugData, null, 2);
+        }
 
         function refreshStats() {
-            fetch("http://localhost:8000/api/stats").then(res => res.json()).then(stats => {
-                document.getElementById("stats").innerHTML = JSON.stringify(stats)
-            })
+            fetch("http://localhost:8000/api/stats")
+                .then(res => res.json())
+                .then(stats => {
+                    // Store stats in debug data
+                    debugData = { ...debugData, ...stats };
+                    updateDebugDisplay();
+
+                    // Update doomscrolling status
+                    const isDoomscrolling = stats.is_doomscrolling;
+                    const doomStatusElement = document.getElementById("is-doomscrolling");
+                    const doomIndicator = document.getElementById("doom-status-indicator");
+
+                    doomStatusElement.textContent = isDoomscrolling ? "Doomscrolling" : "Clean";
+                    doomStatusElement.className = isDoomscrolling ? "status-text doomscrolling" : "status-text clean";
+                    doomIndicator.className = `status-indicator ${isDoomscrolling ? 'doomscrolling' : 'clean'}`;
+
+                    // Update metrics
+                    document.getElementById("doom-secs-today").textContent = formatTime(stats.doom_secs_today);
+                    document.getElementById("clean-streak").textContent = formatTime(stats.doomscroll_clean_streak_secs);
+                    document.getElementById("penalty-rate").textContent = `$${stats.penalty_rate.toFixed(2)}`;
+                    document.getElementById("last-doomscrolled").textContent = formatDateTime(stats.last_doomscrolled_at);
+                })
+                .catch(error => {
+                    console.error("Error fetching stats:", error);
+                    document.getElementById("raw-stats").textContent = "Error fetching stats: " + error.message;
+                });
         }
-        refreshStats()
 
         function refreshCvDetectorAlive() {
-            fetch("http://localhost:8000/api/cv_detector_alive").then(res => res.json()).then(response => {
-                console.log(response)
-                const isAlive = response.cv_detector_alive;
-                document.getElementById("cv-detector-alive-status-value").innerHTML = isAlive ? "Online" : "Offline";
-                document.getElementById("cv-detector-alive-status").style.color = isAlive ? "green" : "red";
-            }).catch(error => {
-                console.error("Error fetching CV detector status:", error);
-                document.getElementById("cv-detector-alive-status-value").innerHTML = "Error";
-                document.getElementById("cv-detector-alive-status").style.color = "red";
-            })
+            fetch("http://localhost:8000/api/cv_detector_alive")
+                .then(res => res.json())
+                .then(response => {
+                    const isAlive = response.cv_detector_alive;
+                    const statusElement = document.getElementById("cv-detector-alive-status-value");
+                    const indicator = document.getElementById("cv-status-indicator");
+
+                    // Store CV detector status in debug data
+                    debugData.cv_detector_alive = isAlive;
+                    updateDebugDisplay();
+
+                    statusElement.textContent = isAlive ? "Online" : "Offline";
+                    statusElement.className = isAlive ? "status-text online" : "status-text offline";
+                    indicator.className = `status-indicator ${isAlive ? 'online' : 'offline'}`;
+                })
+                .catch(error => {
+                    console.error("Error fetching CV detector status:", error);
+                    const statusElement = document.getElementById("cv-detector-alive-status-value");
+                    const indicator = document.getElementById("cv-status-indicator");
+
+                    // Store error state in debug data
+                    debugData.cv_detector_alive = "error";
+                    updateDebugDisplay();
+
+                    statusElement.textContent = "Error";
+                    statusElement.className = "status-text error";
+                    indicator.className = "status-indicator error";
+                });
         }
-        refreshCvDetectorAlive()
 
-        // Run every 3 seconds
-        setInterval(refreshCvDetectorAlive, 3000)
+        // Initial load
+        refreshStats();
+        refreshCvDetectorAlive();
 
+        // Auto-refresh every 3 seconds
+        setInterval(refreshCvDetectorAlive, 3000);
+        setInterval(refreshStats, 3000); // Refresh stats every 5 seconds
+
+        // Manual refresh button
         document.getElementById("refresh-stats").addEventListener("click", () => {
-            refreshStats()
-        })
-
-
+            refreshStats();
+            refreshCvDetectorAlive();
+        });
     </script>
 </body>
 
