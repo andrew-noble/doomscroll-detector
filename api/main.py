@@ -12,10 +12,6 @@ from fastapi.middleware.cors import CORSMiddleware
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global variables (define before routes)
-global cv_detector_alive
-cv_detector_alive = False
-
 global doomscroll_stats
 doomscroll_stats = {
     "doom_secs_today": 0,
@@ -24,6 +20,11 @@ doomscroll_stats = {
     "penalty_rate": 0.10,
     "is_doomscrolling": False, # simple toggle
 }
+
+global cv_detector_heartbeat
+global cv_detector_last_seen
+cv_detector_heartbeat = False
+cv_detector_last_seen = 0
 
 app = FastAPI(title="Doomscrolling Detection API")
 
@@ -47,36 +48,28 @@ def test():
 # your API under /api
 api = APIRouter(prefix="/api")
 
-@api.get("/stats")
-async def api_stats():
-    logger.info("API stats requested")
-    print("API STATS HIT!", flush=True)
-    return doomscroll_stats
-
-app.include_router(api)
-
 # very simple endpoint to track accumulating doomscroll data
 # simply:
-@app.post("/data")
+@api.post("/data")
 async def detection(request: Request):
+    global cv_detector_heartbeat, cv_detector_last_seen
     data = await request.json()
     logger.info(f"Received data: {data}")
     print(f"DEBUG: Received data: {data}", flush=True)
+    cv_detector_heartbeat = True
+    cv_detector_last_seen = time.time()
 
-    if data["type"] == "doomscroll":
-        cv_detector_alive = True
+    if data["doomscrolling"] == True:
         doomscroll_stats["is_doomscrolling"] = True
         logger.info("Doomscrolling detected!")
 
         if doomscroll_stats["last_doomscrolled_at"] is None:
             doomscroll_stats["last_doomscrolled_at"] = time.time()
 
-        doomscroll_stats["doom_secs_today"] += data["duration"]
+        doomscroll_stats["doom_secs_today"] += data["timestamp"] - doomscroll_stats["last_doomscrolled_at"]
         doomscroll_stats["doomscroll_clean_streak_secs"] = 0
-        doomscroll_stats["owed_usd"] += data["duration"] * doomscroll_stats["penalty_rate"]
 
-    elif data["type"] == "heartbeat":
-        cv_detector_alive = True
+    elif data["doomscrolling"] == False:
         doomscroll_stats["is_doomscrolling"] = False
         logger.info("Heartbeat received - not doomscrolling")
 
@@ -86,8 +79,26 @@ async def detection(request: Request):
         doomscroll_stats["doom_secs_today"] * doomscroll_stats["penalty_rate"]
     )
 
-    logger.info(f"Updated stats: {doomscroll_stats}")
     return {"ok": True}
+
+@api.get("/cv_detector_alive")
+async def cv_detector_alive():
+    global cv_detector_heartbeat, cv_detector_last_seen
+    
+    # Check if we haven't heard from the CV detector in 10 seconds
+    if cv_detector_heartbeat and time.time() - cv_detector_last_seen > 3:
+        cv_detector_heartbeat = False
+        print("CV Detector heartbeat timeout - setting to offline")
+    
+    print(f"CV Detector Alive: {cv_detector_heartbeat}")
+    return {"cv_detector_alive": cv_detector_heartbeat}
+
+@api.get("/stats")
+async def api_stats():
+    logger.info("API stats requested")
+    return doomscroll_stats
+
+app.include_router(api)
 
 # serve static site at / (put this LAST so API routes work first)
 # html=True lets index.html be served for '/'
@@ -97,4 +108,4 @@ app.mount("/", StaticFiles(directory="../web", html=True), name="web")
 if __name__ == "__main__":
     import uvicorn
     print(f"Starting server on 0.0.0.0:8000")
-    uvicorn.run('main:app', host="0.0.0.0", port=8000, reload=True, log_level="debug", access_log=True)
+    uvicorn.run('main:app', host="0.0.0.0", port=8000, reload=True, log_level="info", access_log=True)

@@ -102,7 +102,7 @@ def main():
         if t - last_post >= 5.0:
             try:
                 requests.post(
-                    "http://localhost:8000/data",
+                    "http://localhost:8000/api/data",
                     json={"doomscrolling": bool(is_buffered), "timestamp": t},
                     timeout=1.5
                 )
@@ -123,6 +123,7 @@ def main():
     cap.release()
     out.release()
     cv2.destroyAllWindows()
+    
     if opts.record_video:
         print("Video saved as 'doomscroll_recording.mp4'")
 

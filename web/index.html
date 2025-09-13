@@ -11,6 +11,7 @@
     <h1>Doomscrolling Detector</h1>
     <button id="refresh-stats">Refresh Stats</button>
     <div id="stats"></div>
+    <p id="cv-detector-alive-status">CV Pipeline Status: <span id="cv-detector-alive-status-value">Offline</span></p>
     <script>
 
         function refreshStats() {
@@ -20,9 +21,28 @@
         }
         refreshStats()
 
+        function refreshCvDetectorAlive() {
+            fetch("http://localhost:8000/api/cv_detector_alive").then(res => res.json()).then(response => {
+                console.log(response)
+                const isAlive = response.cv_detector_alive;
+                document.getElementById("cv-detector-alive-status-value").innerHTML = isAlive ? "Online" : "Offline";
+                document.getElementById("cv-detector-alive-status").style.color = isAlive ? "green" : "red";
+            }).catch(error => {
+                console.error("Error fetching CV detector status:", error);
+                document.getElementById("cv-detector-alive-status-value").innerHTML = "Error";
+                document.getElementById("cv-detector-alive-status").style.color = "red";
+            })
+        }
+        refreshCvDetectorAlive()
+
+        // Run every 3 seconds
+        setInterval(refreshCvDetectorAlive, 3000)
+
         document.getElementById("refresh-stats").addEventListener("click", () => {
             refreshStats()
         })
+
+
     </script>
 </body>
 
