@@ -2,7 +2,7 @@ import cv2
 import signal
 import sys
 from draw_frame import draw_object_detection_frame
-from vision import detect_doomscrolling, detect_reclined, get_pose
+from vision import detect_doomscrolling, detect_holding_phone, detect_reclined, get_pose, get_phones
 
 cap = cv2.VideoCapture(2)
 
@@ -48,8 +48,10 @@ def main():
         #     print("No doomscrolling detected")
 
         frame, kps_normalized = get_pose(frame)
-        is_reclining = detect_reclined(frame, kps_normalized)
-        print(is_reclining)
+        frame, phones_normalized = get_phones(frame)
+        # is_reclining = detect_reclined(frame, kps_normalized)
+        is_holding_phone = detect_holding_phone(frame, phones_normalized, kps_normalized)
+        print(is_holding_phone)
 
         # Resize frame for larger display (optional)
         display_frame = cv2.resize(frame, (1280, 720))  # Make display larger

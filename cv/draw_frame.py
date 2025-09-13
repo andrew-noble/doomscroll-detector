@@ -64,15 +64,29 @@ def draw_pose_frame(frame: np.ndarray, kps: np.ndarray):
 
     # Check if we have enough keypoints (need at least 15 for the skeleton)
     if len(kps) >= 15:
-        # torso: shoulders → hips
-        cv2.line(frame, pt(5), pt(6), (0,0,255), 2)   # shoulders
-        cv2.line(frame, pt(11), pt(12), (0,255,0), 2) # hips
-        cv2.line(frame, pt(5), pt(11), (255,255,0), 2)
-        cv2.line(frame, pt(6), pt(12), (255,255,0), 2)
+        # Draw keypoint dots
+        # Red dots on shoulders (keypoints 5, 6)
+        cv2.circle(frame, pt(5), 12, (0, 0, 255), -1)  # Left shoulder - red
+        cv2.circle(frame, pt(6), 12, (0, 0, 255), -1)  # Right shoulder - red
+        
+        # Blue dots on hips (keypoints 11, 12)
+        cv2.circle(frame, pt(11), 12, (255, 0, 0), -1)  # Left hip - blue
+        cv2.circle(frame, pt(12), 12, (255, 0, 0), -1)  # Right hip - blue
+        
+        # Green dots on wrists (keypoints 9, 10)
+        cv2.circle(frame, pt(9), 12, (0, 255, 0), -1)   # Left wrist - green
+        cv2.circle(frame, pt(10), 12, (0, 255, 0), -1)  # Right wrist - green
+        
+        # OLD CODE - skeleton connections (commented out)
+        # # torso: shoulders → hips
+        # cv2.line(frame, pt(5), pt(6), (0,0,255), 2)   # shoulders
+        # cv2.line(frame, pt(11), pt(12), (0,255,0), 2) # hips
+        # cv2.line(frame, pt(5), pt(11), (255,255,0), 2)
+        # cv2.line(frame, pt(6), pt(12), (255,255,0), 2)
 
-        # femurs: hip → knee
-        cv2.line(frame, pt(11), pt(13), (255,0,0), 3) # left femur
-        cv2.line(frame, pt(12), pt(14), (255,0,0), 3) # right femur
+        # # femurs: hip → knee
+        # cv2.line(frame, pt(11), pt(13), (255,0,0), 3) # left femur
+        # cv2.line(frame, pt(12), pt(14), (255,0,0), 3) # right femur
     else:
         # Not enough keypoints detected, skip drawing
         pass

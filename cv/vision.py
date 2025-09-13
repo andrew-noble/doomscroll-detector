@@ -10,21 +10,21 @@ def get_phones(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, list[t
     detection_results = detection_model(frame, verbose=False)[0]
     boxes = detection_results.boxes
 
-    # this usage is called "Boolean Array", unique to numpy, worth remembering for filtering
-    classes = boxes.cls
-    phones = boxes[classes == detection_results.names.index("cell phone")] # returns only cell phone detections
+    # Filter for cell phone detections - much simpler!
+    phones = boxes[boxes.cls == 67]  # 67 is the COCO class ID for cell phone
 
-    phone_coords = []
+    phone_coords_normalized = []
     for box in phones:
+        x1_n, y1_n, x2_n, y2_n = box.xyxyn.cpu().numpy()[0]
         x1, y1, x2, y2 = box.xyxy.cpu().numpy()[0]
-        phone_coords.append((x1, y1, x2, y2))
+        phone_coords_normalized.append((x1_n, y1_n, x2_n, y2_n))
 
         if draw:
             name = "cell phone"
             confidence = float(box.conf[0])
             frame = draw_object_detection_frame(frame, name, confidence, x1, y1, x2, y2)
     
-    return frame, phone_coords
+    return frame, phone_coords_normalized
 
 def get_pose(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, np.ndarray]:
 
@@ -51,7 +51,7 @@ def get_pose(frame: np.ndarray, draw: bool = True) -> tuple[np.ndarray, np.ndarr
 
 def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, draw: bool = True) -> bool:
     margin = 0.05
-
+    
     def midpoint(p1, p2):
         return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
 
@@ -65,8 +65,26 @@ def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, draw: bool = 
 
     return is_reclining
 
-def detect_holding_phone(frame: np.ndarray, phones: list[tuple[int, int, int, int]], kps: np.ndarray, draw: bool = True) -> bool:
-    pass
+def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, int]], kps_n: np.ndarray, draw: bool = True) -> bool:
+    radius = 0.5 # will need tweaking
+
+    def box_center_xyxy(box):
+        x1, y1, x2, y2 = map(float, box)  # handles np.float32 scalars too
+        return ((x1 + x2) / 2.0, (y1 + y2) / 2.0)
+
+    for phone in phones_n:
+        phone_coords = np.array(phone)
+        phone_midpoint = box_center_xyxy(phone_coords) # gets center of phone box
+
+        dist_left = np.linalg.norm(phone_midpoint - kps_n[9])
+        dist_right = np.linalg.norm(phone_midpoint - kps_n[10])
+
+        print(dist_left, dist_right)
+
+        if dist_left < radius or dist_right < radius:
+            return True
+
+    return False
 
 def detect_doomscrolling(frame: np.ndarray, kps: np.ndarray, draw: bool = True):
     frame, phones = get_phones(frame, draw)
