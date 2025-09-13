@@ -13,6 +13,39 @@ Anecdotally, I don't find myself scrolling away the hours while on my feet, or e
 
 The system is divided into 3 parts, a vision pipeline, a webserver, and a simple dashboard.
 
+## Running the Project
+
+I built and ran this project on ordinary, everyday hardware, my Framework 13 laptop and its built-in webcam, and you can too! To run it:
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd doomscroll-detector
+
+# Set up the computer vision pipeline
+cd cv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Set up the API server
+cd ../api
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Run the vision pipeline (in one terminal)
+cd ../cv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+python main.py
+
+# Run the API server (in another terminal)
+cd ../api
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+python main.py
+
+# Open the dashboard
+# Navigate to localhost:8000 in your browser
+```
+
 ## Components
 
 - **Vision Pipeline**
