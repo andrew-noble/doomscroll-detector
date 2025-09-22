@@ -2,13 +2,14 @@ import cv2
 import signal
 import sys
 from draw_frame import draw_object_detection_frame, draw_status_overlay, draw_pose_frame, tint_red
-from vision import detect_holding_phone, detect_reclined, get_pose, get_phone
+from vision import get_pose, get_phone
+from heuristics import check_holding_phone, check_reclined
 from opts import get_opts
 from collections import deque
 import time
 import requests
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 
 # Set higher resolution
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)   # Width
@@ -46,7 +47,7 @@ signal.signal(signal.SIGINT, signal_handler)
 def main():
     opts = get_opts()
 
-    WINDOW_SEC = 5.0
+    WINDOW_SEC = 1.0
     ENTER, EXIT = 0.60, 0.30 # to enter doomscroll state, pos > 60%, exit: pos < 30%
     buf = deque()
     pos_count = 0
@@ -87,20 +88,20 @@ def main():
         frame, phone_coords_normalized, phone_coords = get_phone(frame) 
         
         # heuristics
-        is_reclining = detect_reclined(frame, kps_normalized, threshold=opts.reclined_threshold)
-        is_holding_phone = detect_holding_phone(frame, phone_coords_normalized, kps_normalized, threshold=opts.holding_phone_threshold)
-        is_doomscrolling = is_reclining and is_holding_phone
+        is_reclining = check_reclined(frame, kps_normalized, threshold=opts.reclined_threshold)
+        is_scrolling = check_holding_phone(frame, phone_coords_normalized, kps_normalized, threshold=opts.holding_phone_threshold)
+        is_doomscrolling = is_reclining and is_scrolling
 
         # sliding-window + hysteresis
         is_buffered = update_buffer(t, is_doomscrolling)
 
-        color = "red" if is_doomscrolling else "green"
+        color = "red" if is_buffered else "green"
 
         # draw overlays
-        frame = draw_pose_frame(frame, kps, color)
+        frame = draw_pose_frame(frame, kps, color, wrist_bound=opts.holding_phone_threshold)
         frame = draw_object_detection_frame(frame, phone_coords, color)
         frame = draw_status_overlay(frame, is_buffered, "Doomscrolling", "top_left")
-        if is_doomscrolling:
+        if is_buffered:
             frame = tint_red(frame)
 
         # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left") # un-buffered

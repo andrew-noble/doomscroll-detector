@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-def draw_object_detection_frame(frame: np.ndarray, coords: tuple[np.float32, np.float32, np.float32, np.float32] | None, color: str = "green"):
+def draw_object_detection_frame(frame: np.ndarray, coords: tuple[np.float32, np.float32, np.float32, np.float32] | None, color):
     """
     Draw object detection bounding box and label on a frame.
     
@@ -64,7 +64,7 @@ def draw_object_detection_frame(frame: np.ndarray, coords: tuple[np.float32, np.
     return frame
 
 
-def draw_pose_frame(frame: np.ndarray, kps: np.ndarray, color: str = "green"):
+def draw_pose_frame(frame: np.ndarray, kps: np.ndarray, color, wrist_bound):
     """
     Draw pose keypoints and skeleton on a frame.
     
@@ -95,13 +95,20 @@ def draw_pose_frame(frame: np.ndarray, kps: np.ndarray, color: str = "green"):
 
     # Check if we have enough keypoints (need at least 15 for the skeleton)
     if len(kps) >= 15:
-        # Draw keypoint dots with the specified color
+        # Draw solid keypoint dots for shoulders and hips
         frame = cv2.circle(frame, pt(5), 30, bgr_color, -1)   # Left shoulder
         frame = cv2.circle(frame, pt(6), 30, bgr_color, -1)   # Right shoulder
         frame = cv2.circle(frame, pt(11), 30, bgr_color, -1)  # Left hip
         frame = cv2.circle(frame, pt(12), 30, bgr_color, -1)  # Right hip
-        frame = cv2.circle(frame, pt(9), 30, bgr_color, -1)   # Left wrist
-        frame = cv2.circle(frame, pt(10), 30, bgr_color, -1)  # Right wrist
+
+        wrist_radius = int(wrist_bound * frame.shape[0]) # currently we scale wrist_threshold by the frame width 
+        
+        # Draw translucent circles for wrists
+        alpha = 0.3  # Transparency level (0=transparent, 1=opaque)
+        overlay = frame.copy()
+        cv2.circle(overlay, pt(9), wrist_radius, bgr_color, -1)   # Left wrist
+        cv2.circle(overlay, pt(10), wrist_radius, bgr_color, -1)  # Right wrist
+        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
         
         # OLD CODE - skeleton connections
         # # torso: shoulders → hips
@@ -186,7 +193,7 @@ def tint_red(frame):
     overlay = frame.copy()
     red = (0, 0, 255)   # BGR
     cv2.rectangle(overlay, (0,0), (frame.shape[1], frame.shape[0]), red, -1)
-    alpha = 0.2         # 0=transparent, 1=solid red
+    alpha = 0.1       # 0=transparent, 1=solid red
     cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
 
     return frame
