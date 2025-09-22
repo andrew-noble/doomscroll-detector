@@ -1,8 +1,8 @@
 import cv2
 import signal
 import sys
-from draw_frame import draw_status_overlay, draw_pose_frame
-from vision import detect_doomscrolling, detect_holding_phone, detect_reclined, get_pose, get_phones
+from draw_frame import draw_object_detection_frame, draw_status_overlay, draw_pose_frame, tint_red
+from vision import detect_holding_phone, detect_reclined, get_pose, get_phone
 from opts import get_opts
 from collections import deque
 import time
@@ -53,7 +53,7 @@ def main():
     state = False           # buffered on/off
     last_post = 0.0         # last POST time (epoch seconds)
 
-    def update(t, is_pos, window_sec=WINDOW_SEC, enter=ENTER, exit=EXIT):
+    def update_buffer(t, is_pos, window_sec=WINDOW_SEC, enter=ENTER, exit=EXIT):
         nonlocal pos_count, state
         # push new
         buf.append((t, is_pos))
@@ -84,33 +84,38 @@ def main():
 
         # run models
         frame, kps_normalized, kps = get_pose(frame)
-        frame, phones_normalized = get_phones(frame) #phones boxes drawn in here, would need fixing.
-
+        frame, phone_coords_normalized, phone_coords = get_phone(frame) 
+        
         # heuristics
         is_reclining = detect_reclined(frame, kps_normalized, threshold=opts.reclined_threshold)
-        is_holding_phone = detect_holding_phone(frame, phones_normalized, kps_normalized, threshold=opts.holding_phone_threshold)
+        is_holding_phone = detect_holding_phone(frame, phone_coords_normalized, kps_normalized, threshold=opts.holding_phone_threshold)
         is_doomscrolling = is_reclining and is_holding_phone
 
         # sliding-window + hysteresis
-        is_buffered = update(t, is_doomscrolling)
+        is_buffered = update_buffer(t, is_doomscrolling)
+
+        color = "red" if is_doomscrolling else "green"
 
         # draw overlays
-        # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left")
-        # phone boxes are drawn in the get_phones func, very awkward, but okay since last CV step
-        frame = draw_pose_frame(frame, kps)
+        frame = draw_pose_frame(frame, kps, color)
+        frame = draw_object_detection_frame(frame, phone_coords, color)
         frame = draw_status_overlay(frame, is_buffered, "Doomscrolling", "top_left")
+        if is_doomscrolling:
+            frame = tint_red(frame)
 
-        # periodic POST every ~5s
-        if t - last_post >= 1.0:
-            try:
-                requests.post(
-                    "http://localhost:8000/api/data",
-                    json={"doomscrolling": bool(is_buffered), "timestamp": t},
-                    timeout=1.5
-                )
-            except requests.RequestException as e:
-                print("POST error:", e)
-            last_post = t
+        # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left") # un-buffered
+
+        # # periodic POST every ~5s
+        # if t - last_post >= 1.0:
+        #     try:
+        #         requests.post(
+        #             "http://localhost:8000/api/data",
+        #             json={"doomscrolling": bool(is_buffered), "timestamp": t},
+        #             timeout=1.5
+        #         )
+        #     except requests.RequestException as e:
+        #         print("POST error:", e)
+        #     last_post = t
 
         if opts.record_video:
             out.write(frame)
