@@ -1,30 +1,28 @@
 from ultralytics import YOLO
 import numpy as np
-from draw_frame import draw_object_detection_frame
-from draw_frame import draw_pose_frame
 
 pose_model = YOLO("yolo11n-pose.pt")
 detection_model = YOLO("yolo11n.pt")
 
-def get_phones(frame: np.ndarray) -> tuple[np.ndarray, list[tuple[int, int, int, int]]]:
-    detection_results = detection_model(frame, verbose=False)[0]
+def get_phone(frame: np.ndarray) -> tuple[np.ndarray, tuple[np.float32, np.float32, np.float32, np.float32] | None, tuple[int, int, int, int] | None]:
+    detection_results = detection_model(frame, conf=0.1, verbose=False)[0] # default confidence is 0.5! Definitely want more sensitivity
     boxes = detection_results.boxes
 
     # Filter for cell phone detections - much simpler!
     phones = boxes[boxes.cls == 67]  # 67 is the COCO class ID for cell phone
 
-    phone_coords_normalized = []
-    for box in phones:
-        x1_n, y1_n, x2_n, y2_n = box.xyxyn.cpu().numpy()[0]
-        x1, y1, x2, y2 = box.xyxy.cpu().numpy()[0]
-        phone_coords_normalized.append((x1_n, y1_n, x2_n, y2_n))
+    if len(phones) == 0:
+        return frame, None, None
 
-        # awkward that we draw phones here, but draw pose out in main func, but okay for now
-        name = "cell phone"
-        confidence = float(box.conf[0])
-        frame = draw_object_detection_frame(frame, name, confidence, x1, y1, x2, y2)
+    box = phones[0]  # this project isn't robust to multiple phones!
+
+    x1_n, y1_n, x2_n, y2_n = box.xyxyn.cpu().numpy()[0] # packaged in an an extra array for some reason
+    phone_coords_normalized = (x1_n, y1_n, x2_n, y2_n)
+
+    x1, y1, x2, y2 = box.xyxy.cpu().numpy()[0]
+    phone_coords = (x1, y1, x2, y2)
     
-    return frame, phone_coords_normalized
+    return frame, phone_coords_normalized, phone_coords
 
 def get_pose(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
@@ -62,32 +60,20 @@ def detect_reclined(frame: np.ndarray, kps_normalized: np.ndarray, threshold: fl
 
     return is_reclining
 
-def detect_holding_phone(frame: np.ndarray, phones_n: list[tuple[int, int, int, int]], kps_n: np.ndarray, threshold: float, *, draw: bool = True) -> bool:
+def detect_holding_phone(frame: np.ndarray, phone_n: tuple[int, int, int, int] | None, kps_n: np.ndarray, threshold: float, *, draw: bool = True) -> bool:
 
-    if len(phones_n) == 0:
+    if phone_n is None: # no phone in frame
         return False
 
     def box_center_xyxy(box):
         x1, y1, x2, y2 = map(float, box)  # handles np.float32 scalars too
         return ((x1 + x2) / 2.0, (y1 + y2) / 2.0)
 
-    for phone in phones_n:
-        phone_coords = np.array(phone)
-        phone_midpoint = box_center_xyxy(phone_coords) # gets center of phone box
+    phone_coords = np.array(phone_n)
+    phone_midpoint = box_center_xyxy(phone_coords) # gets center of phone box
 
-        dist_left = np.linalg.norm(phone_midpoint - kps_n[9])
-        dist_right = np.linalg.norm(phone_midpoint - kps_n[10])
+    dist_left = np.linalg.norm(phone_midpoint - kps_n[9])
+    dist_right = np.linalg.norm(phone_midpoint - kps_n[10])
 
-        if dist_left < threshold or dist_right < threshold:
-            return True
-
-    return False
-
-def detect_doomscrolling(frame: np.ndarray, kps: np.ndarray, *, draw: bool = True):
-    frame, phones = get_phones(frame, draw)
-    frame, kps = get_pose(frame, draw)
-
-    is_reclining = detect_reclined(frame, kps, draw)
-    is_holding_phone = detect_holding_phone(frame, phones, kps, draw)
-
-    return is_reclining, is_holding_phone
+    if dist_left < threshold or dist_right < threshold:
+        return True
