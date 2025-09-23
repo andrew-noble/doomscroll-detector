@@ -11,13 +11,13 @@ The system flags doomscrolling when the subject has a phone in their hand **and*
 It would be easy to add in Stripe to charge your credit card, so I put in a spoofed penalty counter.
 
 ## How It Works
-- Uses YOLOv11 pose estimation to track keypoints.  
-- Detects phones with a YOLO object detector.  
+- Uses YOLOv11 pose estimation to track keypoints
+- Detects phones with a YOLO object detector
 - Applies heuristics:
-  - Reclined posture → based on hip/shoulder alignment.  
-  - Holding phone → wrist proximity to phone box.  
-- Combines both → flags as *doomscrolling*.  
-- Overlays results on the webcam feed + spoofed penalty counter.
+  - Reclined posture → based on hip/shoulder alignment
+  - Holding phone → wrist proximity to phone box
+- Combines both → flags as doomscrolling
+- Overlays results on the webcam feed + spoofed penalty counter
 
 # Running the Project
 
