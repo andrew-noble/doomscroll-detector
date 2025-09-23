@@ -10,6 +10,8 @@ The system flags doomscrolling when the subject has a phone in their hand **and*
 
 It would be easy to add in Stripe to charge your credit card, so I put in a spoofed penalty counter.
 
+Built at HackCMU 2025 in a 24-hour sprint.
+
 ## How It Works
 - Uses YOLOv11 pose estimation to track keypoints
 - Detects phones with a YOLO object detector
@@ -38,5 +40,3 @@ cd ../cv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 python main.py
 ```
-
-Built at HackCMU 2025 in a 24-hour sprint.
