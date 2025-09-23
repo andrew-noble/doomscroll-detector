@@ -127,35 +127,42 @@ def draw_pose_frame(frame: np.ndarray, kps: np.ndarray, color, wrist_bound):
     return frame
 
 
-def draw_status_overlay(frame: np.ndarray, status: bool, label: str = "Status", position: str = "top_left"):
+def draw_text_overlay(frame: np.ndarray, text: str, position: str = "top_left", color: str = "white", font_scale: float = 2.0):
     """
-    Draw a simple boolean status indicator in the corner of the frame.
+    Draw arbitrary text in a corner of the frame.
     
     Args:
         frame (np.ndarray): The input frame to draw on
-        status (bool): The boolean status to display
-        label (str): Label text to show next to the indicator
+        text (str): The text to display
         position (str): Position of the overlay ("top_left", "top_right", "bottom_left", "bottom_right")
+        color (str): Color name ("green", "red", "blue", "yellow", "purple", "orange", "cyan", "white")
+        font_scale (float): Size of the text
     
     Returns:
-        np.ndarray: The frame with status overlay drawn
+        np.ndarray: The frame with text overlay drawn
     """
     # Get frame dimensions
     height, width = frame.shape[:2]
     
-    # Set colors - Green for False, Red for True (inverted logic)
-    text_color = (0, 255, 0) if not status else (0, 0, 255)  # Green for False, Red for True
+    # Color mapping (BGR format)
+    colors = {
+        "green": (0, 255, 0),
+        "red": (0, 0, 255),
+        "blue": (255, 0, 0),
+        "yellow": (0, 255, 255),
+        "purple": (255, 0, 255),
+        "orange": (0, 165, 255),
+        "cyan": (255, 255, 0),
+        "white": (255, 255, 255)
+    }
+    text_color = colors.get(color.lower(), (255, 255, 255))  # Default to white
     
-    # Create status text
-    status_text = f"{label}: {'TRUE' if status else 'FALSE'}"
-    
-    # Set font properties - much bigger
+    # Set font properties
     font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 2.0  # Much bigger text
     thickness = 4  # Thicker text
     
     # Get text size
-    (text_width, text_height), baseline = cv2.getTextSize(status_text, font, font_scale, thickness)
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
     
     # Set padding - much bigger
     padding = 20
@@ -184,9 +191,31 @@ def draw_status_overlay(frame: np.ndarray, status: bool, label: str = "Status", 
                   (0, 0, 0), -1)  # Black background
         
     # Draw text
-    cv2.putText(frame, status_text, (x, y), font, font_scale, text_color, thickness)
+    cv2.putText(frame, text, (x, y), font, font_scale, text_color, thickness)
     
     return frame
+
+
+def draw_status_overlay(frame: np.ndarray, status: bool, label: str = "Status", position: str = "top_left"):
+    """
+    Draw a boolean status indicator in the corner of the frame.
+    Convenience wrapper around draw_text_overlay.
+    
+    Args:
+        frame (np.ndarray): The input frame to draw on
+        status (bool): The boolean status to display
+        label (str): Label text to show next to the indicator
+        position (str): Position of the overlay ("top_left", "top_right", "bottom_left", "bottom_right")
+    
+    Returns:
+        np.ndarray: The frame with status overlay drawn
+    """
+    # Set colors - Green for False, Red for True (inverted logic)
+    color = "green" if not status else "red"
+    status_text = f"{label}: {'TRUE' if status else 'FALSE'}"
+    
+    return draw_text_overlay(frame, status_text, position, color)
+
 
 def tint_red(frame):
 

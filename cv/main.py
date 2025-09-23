@@ -1,14 +1,14 @@
 import cv2
 import signal
 import sys
-from draw_frame import draw_object_detection_frame, draw_status_overlay, draw_pose_frame, tint_red
+from draw_frame import draw_object_detection_frame, draw_status_overlay, draw_pose_frame, draw_text_overlay, tint_red
 from vision import get_pose, get_phone
 from heuristics import check_holding_phone, check_reclined
 from opts import get_opts
 from collections import deque
 import time
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 # Set higher resolution
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)   # Width
@@ -45,7 +45,6 @@ def main():
     buf = deque()
     pos_count = 0
     state = False           # buffered on/off
-    last_post = 0.0         # last POST time (epoch seconds)
 
     def update_buffer(t, is_pos, window_sec=WINDOW_SEC, enter=ENTER, exit=EXIT):
         nonlocal pos_count, state
@@ -68,6 +67,13 @@ def main():
         elif state and frac <= exit:
             state = False
         return state
+
+    penalty = 0
+    penalty_rate = 0.15 # spoof charge rate per second in USD
+    last = time.time()
+
+    frame_count = 0
+    start_time = time.time()
 
     global running
     while running:
@@ -94,21 +100,39 @@ def main():
         frame = draw_pose_frame(frame, kps, color, wrist_bound=opts.holding_phone_threshold)
         frame = draw_object_detection_frame(frame, phone_coords, color)
         frame = draw_status_overlay(frame, is_buffered, "Doomscrolling", "top_left")
+
+        # update penalty every buffered window. I think this is not ideal with the buffering, doesn't cleanly track stackup, but good enough for now. 
+        now = time.time()
+        if now - last >= WINDOW_SEC and is_buffered:
+            penalty += penalty_rate
+            last = now
+
+        frame = draw_text_overlay(frame, f'Penalty: ${penalty:.2f}', "top_right")
+
         if is_buffered:
             frame = tint_red(frame)
 
-        # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left") # un-buffered
+        frame_count += 1
+
+        if frame_count >= 60:  # check after ~60 frames
+            elapsed = time.time() - start_time
+            fps = frame_count / elapsed
+            print(f"Approx FPS: {fps:.2f}")
+            frame_count = 0
+            start_time = time.time()
 
         if opts.record_video:
             out.write(frame)
 
         display_frame = cv2.resize(frame, (1280, 720))
+
         if not opts.headless:
             cv2.imshow("Webcam", display_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("Exiting...")
             break
+
 
     cap.release()
     out.release()
