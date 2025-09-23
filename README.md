@@ -8,7 +8,7 @@ Anecdotally, I don't find myself scrolling away the hours while on my feet, or e
 
 The system flags doomscrolling when the subject has a phone in their hand **and** is reclined.
 
-It would be easy to add in Stripe to charge your credit card, so I put in a spoofed penalty counter.
+It would be easy to add in Stripe to charge your credit card per second lost to Zuckerberg, so I put in a spoofed penalty counter.
 
 Built at HackCMU 2025 in a 24-hour sprint.
 
