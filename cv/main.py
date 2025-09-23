@@ -7,16 +7,12 @@ from heuristics import check_holding_phone, check_reclined
 from opts import get_opts
 from collections import deque
 import time
-import requests
 
 cap = cv2.VideoCapture(2)
 
 # Set higher resolution
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)   # Width
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # Height
-
-# Optional: Set FPS
-cap.set(cv2.CAP_PROP_FPS, 30)
 
 # Check if resolution was set successfully
 actual_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -26,9 +22,6 @@ print(f"Camera resolution: {int(actual_width)}x{int(actual_height)}")
 # Video recording setup
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # or 'XVID'
 out = cv2.VideoWriter('doomscroll_recording.mp4', fourcc, 30.0, (int(actual_width), int(actual_height)))
-
-# post requests setup
-url = "http://localhost:8000/data"
 
 # Global flag for clean shutdown
 running = True
@@ -105,18 +98,6 @@ def main():
             frame = tint_red(frame)
 
         # frame = draw_status_overlay(frame, is_doomscrolling, "Doomscrolling (raw)", "top_left") # un-buffered
-
-        # # periodic POST every ~5s
-        # if t - last_post >= 1.0:
-        #     try:
-        #         requests.post(
-        #             "http://localhost:8000/api/data",
-        #             json={"doomscrolling": bool(is_buffered), "timestamp": t},
-        #             timeout=1.5
-        #         )
-        #     except requests.RequestException as e:
-        #         print("POST error:", e)
-        #     last_post = t
 
         if opts.record_video:
             out.write(frame)
