@@ -21,7 +21,7 @@ print(f"Camera resolution: {int(actual_width)}x{int(actual_height)}")
 
 # Video recording setup
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # or 'XVID'
-out = cv2.VideoWriter('doomscroll_recording.mp4', fourcc, 30.0, (int(actual_width), int(actual_height)))
+out = cv2.VideoWriter('doomscroll_recording.mp4', fourcc, 10, (int(actual_width), int(actual_height))) # measured ~5 fps on my machine
 
 # Global flag for clean shutdown
 running = True
@@ -89,6 +89,7 @@ def main():
         # heuristics
         is_reclining = check_reclined(frame, kps_normalized, threshold=opts.reclined_threshold)
         is_scrolling = check_holding_phone(frame, phone_coords_normalized, kps_normalized, threshold=opts.holding_phone_threshold)
+        print(f'Phone: {is_scrolling}, Pose: {is_reclining}')
         is_doomscrolling = is_reclining and is_scrolling
 
         # sliding-window + hysteresis
