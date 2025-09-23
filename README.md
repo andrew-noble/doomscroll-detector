@@ -1,16 +1,16 @@
 # Doomscrolling Detector
 
-I built this computer vision pipeline because I hate how much I scroll on my phone. My precious life seems to just drain away.
+A computer vision pipeline that detects when you're reclined and on your phone. I built this because I hate how much I scroll on my phone. My precious life seems to just drain away.
 
 ![Demo GIF](media/clip1.gif)
 
-Anecdotally, I don't find myself scrolling away the hours while on my feet, or even seated in a chair. It mostly occurs when I am reclined.
+Anecdotally, I don't find myself scrolling away the hours while on my feet, or even seated in a chair. It mostly occurs when I am laying in bed or on a couch.
 
 The system flags doomscrolling when the subject has a phone in their hand **and** is reclined.
 
 It would be easy to add in Stripe to charge your credit card, so I put in a spoofed penalty counter.
 
-I built this for HackCMU 2025 over 24 hours on September 12-13, 2025 and had a blast.
+Built at HackCMU 2025 in a 24-hour sprint.
 
 # Running the Project
 
