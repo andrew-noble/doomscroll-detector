@@ -31,7 +31,3 @@ cd ../cv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 python main.py
 ```
-
-```
-
-```
