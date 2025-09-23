@@ -6,7 +6,9 @@ I built this computer vision pipeline because I hate how much I scroll on my pho
 
 Anecdotally, I don't find myself scrolling away the hours while on my feet, or even seated in a chair. It mostly occurs when I am reclined.
 
-As such, **the system flags when the person in frame had a phone in their hand AND is reclined**.
+The system flags doomscrolling when the subject has a phone in their hand **and** is reclined.
+
+It would be easy to add in Stripe to charge your credit card, so I put in a spoofed penalty counter.
 
 I built this for HackCMU 2025 over 24 hours on September 12-13, 2025 and had a blast.
 
